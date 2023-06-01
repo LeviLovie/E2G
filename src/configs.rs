@@ -9,7 +9,7 @@ use serde_yaml::{self};
 
 use crate::ERR;
 
-const BOOT_CONF_CONTENT: &str = "pixel_size: 4\nlog_easy: \"log.txt\"\nlog_hard: \"log.json\"\n";
+const BOOT_CONF_CONTENT: &str = "pixel_size: 6\nlog_easy: \"log.txt\"\nlog_hard: \"log.json\"\n";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BootConf {

@@ -26,21 +26,25 @@ fn main() {
     let vram_mut = Arc::clone(&gfx.VRAM);
 
     let mut vram = vram_mut.lock().unwrap();
-    vram.VRAM_set_rect(10, 10, 108, 108, engine::VRAM::Color { r: 255.0, g: 0.0, b: 0.0 });
+    vram.VRAM_set_rect(0, 0, 128, 128, engine::VRAM::Color{r: 0.5, g: 0.5, b: 0.5});
     drop(vram);
 
     thread::spawn(move || {
         let mut rng = thread_rng();
         loop {
-            let x = 20 + rng.gen_range(0..98);
-            let y = 20 + rng.gen_range(0..98);
-            let color = engine::VRAM::Color {r: 0.0, g: 0.0, b: 0.0};
-
+            let x = rng.gen_range(0..128);
+            let y = rng.gen_range(0..128);
             let mut vram = vram_mut.lock().unwrap();
-            vram.VRAM_set_pixel(x, y, color);
+            vram.VRAM_set_pixel(x, y, engine::VRAM::Color{r: 255.0, g: 255.0, b: 255.0});
             drop(vram);
 
-            thread::sleep(Duration::from_millis(100));
+            let x = rng.gen_range(0..128);
+            let y = rng.gen_range(0..128);
+            let mut vram = vram_mut.lock().unwrap();
+            vram.VRAM_set_pixel(x, y, engine::VRAM::Color{r: 0.0, g: 0.0, b: 0.0});
+            drop(vram);
+
+            thread::sleep(Duration::from_micros(10));
         }
     });
 
