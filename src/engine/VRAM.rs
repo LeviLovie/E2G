@@ -13,65 +13,52 @@ impl Color {
     }
 }
 
+// #[derive(Copy, Clone)]
+// pub struct Pixel {
+//     pub x: usize,
+//     pub y: usize,
+//     pub color: Color,
+// }
+
+// impl Pixel {
+//     pub fn new(x: usize, y: usize, color: Color) -> Self {
+//         Pixel {
+//             x: x,
+//             y: y,
+//             color: color,
+//         }
+//     }
+// }
+
 #[derive(Copy, Clone)]
-pub struct Pixel {
-    pub x: usize,
-    pub y: usize,
-    pub color: Color,
-}
-
-impl Pixel {
-    pub fn new(x: usize, y: usize, color: Color) -> Self {
-        Pixel {
-            x: x,
-            y: y,
-            color: color,
-        }
-    }
-}
-
-#[derive(Clone)]
 pub struct VRAM {
-    pub VRAM: [Pixel; SIZE*SIZE],
+    pub VRAM: [Color; SIZE*SIZE],
 }
 
 impl VRAM {
     pub fn new() -> Self {
-        let null_pixel = Pixel {
-            x: 0,
-            y: 0,
-            color: Color {
-                r: 0.0,
-                g: 0.0,
-                b: 0.0,
-            },
-        };
         VRAM {
-            VRAM: [null_pixel; SIZE*SIZE],
+            VRAM: [Color::new(0.0, 0.0, 0.0); SIZE*SIZE],
         }
     }
 
     // Get pixel from VRAM
     pub fn VRAM_get_pixel(&self, x: usize, y: usize) -> Color {
         let num = y * SIZE + x;
-        self.VRAM[num].color
+        self.VRAM[num]
     }
 
     // Set pixel in VRAM
-    pub fn VRAM_set_pixel(&mut self, Pixel: Pixel) {
-        let num = Pixel.y * SIZE + Pixel.x;
-        self.VRAM[num] = Pixel;
+    pub fn VRAM_set_pixel(&mut self, x: usize, y: usize, color: Color) {
+        let num = y * SIZE + x;
+        self.VRAM[num] = color;
     }
 
     // Set pixels rect in VRAM
     pub fn VRAM_set_rect(&mut self, x: usize, y: usize, width: usize, height: usize, color: Color) {
         for i in y..y + height {
             for j in x..x + width {
-                self.VRAM_set_pixel(Pixel {
-                    x: j,
-                    y: i,
-                    color: color,
-                });
+                self.VRAM_set_pixel(j, i, color);
             }
         }
     }
@@ -87,46 +74,14 @@ impl VRAM {
         let mut d = 3 - 2 * radius;
 
         while y1 >= x1 {
-            self.VRAM_set_pixel(Pixel {
-                x: (x + x1) as usize,
-                y: (y - y1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x + y1) as usize,
-                y: (y - x1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x + y1) as usize,
-                y: (y + x1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x + x1) as usize,
-                y: (y + y1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x - x1) as usize,
-                y: (y + y1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x - y1) as usize,
-                y: (y + x1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x - y1) as usize,
-                y: (y - x1) as usize,
-                color: color,
-            });
-            self.VRAM_set_pixel(Pixel {
-                x: (x - x1) as usize,
-                y: (y - y1) as usize,
-                color: color,
-            });
+            self.VRAM_set_pixel((x + x1) as usize, (y - y1) as usize, color);
+            self.VRAM_set_pixel((x + y1) as usize, (y - x1) as usize, color);
+            self.VRAM_set_pixel((x + y1) as usize, (y + x1) as usize, color);
+            self.VRAM_set_pixel((x + x1) as usize, (y + y1) as usize, color);
+            self.VRAM_set_pixel((x - x1) as usize, (y + y1) as usize, color);
+            self.VRAM_set_pixel((x - y1) as usize, (y + x1) as usize, color);
+            self.VRAM_set_pixel((x - y1) as usize, (y - x1) as usize, color);
+            self.VRAM_set_pixel((x - x1) as usize, (y - y1) as usize, color);
 
             if d < 0 {
                 d += 4 * x1 + 6;
@@ -161,11 +116,7 @@ impl VRAM {
 
             let mut p = 2 * dx - dy;
             while x != x2 {
-                self.VRAM_set_pixel(Pixel {
-                    x: x as usize,
-                    y: y as usize,
-                    color: color,
-                });
+                self.VRAM_set_pixel(x as usize, y as usize, color);
 
                 if p > 0 {
                     y += 1;
@@ -187,11 +138,7 @@ impl VRAM {
 
             let mut p = 2 * dy - dx;
             while y != y2 {
-                self.VRAM_set_pixel(Pixel {
-                    x: x as usize,
-                    y: y as usize,
-                    color: color,
-                });
+                self.VRAM_set_pixel(x as usize, y as usize, color);
 
                 if p > 0 {
                     x += 1;
