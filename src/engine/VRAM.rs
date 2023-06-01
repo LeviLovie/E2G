@@ -30,6 +30,11 @@ impl Color {
 //     }
 // }
 
+const FONT_LETTERS: &str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz(|)~";
+const LETTERS_IN_LINE: usize = 20;
+const LETTER_SIZE: usize = 8;
+const LETTERS: [&str; FONT_LETTERS.len()] = 
+
 #[derive(Copy, Clone)]
 pub struct VRAM {
     pub VRAM: [Color; SIZE*SIZE],
@@ -59,6 +64,57 @@ impl VRAM {
         for i in y..y + height {
             for j in x..x + width {
                 self.VRAM_set_pixel(j, i, color);
+            }
+        }
+    }
+
+    pub fn VRAM_write_text(&mut self, x: usize, y: usize, color: Color, text: &str) {
+        let text_length = text.len();
+        let image_data = include_bytes!("../../static/font.png");
+
+        for i in 0..text_length {
+            let mut letter_index = 0;
+            for j in 0..FONT_LETTERS.len() {
+                if text.chars().nth(i).unwrap() == FONT_LETTERS.chars().nth(j).unwrap() {
+                    letter_index = j;
+                    break;
+                }
+            }
+
+            println!("letter_index: {}", letter_index);
+
+            let mut letter_x = (letter_index % LETTERS_IN_LINE) * LETTER_SIZE;
+            let mut letter_y = (letter_index / LETTERS_IN_LINE) * LETTER_SIZE;
+
+            println!("letter_x: {}", letter_x);
+            println!("letter_y: {}", letter_y);
+
+            let mut letter: [i32; LETTER_SIZE*LETTER_SIZE] = [0; LETTER_SIZE*LETTER_SIZE];
+            for i in 0..LETTER_SIZE {
+                for j in 0..LETTER_SIZE {
+                    let mut pixel = 0;
+                    if LETTERS.chars().nth(letter_y * LETTER_SIZE + i + letter_x * LETTER_SIZE + j).unwrap() == '1' {
+                        pixel = 1;
+                    }
+                    letter[(i * LETTER_SIZE) + j] = pixel;
+                }
+            }
+
+            for i in 0..LETTER_SIZE {
+                for j in 0..LETTER_SIZE {
+                    print!("{}", letter[i * LETTER_SIZE + j]);
+                }
+                println!();
+            }
+
+            for i in 0..LETTER_SIZE {
+                for j in 0..LETTER_SIZE {
+                    if i <= SIZE && j <= SIZE {
+                        if letter[i * LETTER_SIZE + j] == 1 {
+                            self.VRAM_set_pixel(x + j, y + i, color);
+                        }
+                    }
+                }
             }
         }
     }

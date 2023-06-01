@@ -19,6 +19,7 @@ fn check_update_display(){
     })
 }
 
+#[derive(Clone)]
 pub struct GFX {
     pub VRAM: Arc<Mutex<VRAM::VRAM>>,
     pub screen_pixel_size: usize,
@@ -48,6 +49,8 @@ impl GFX {
             gtk::main_quit();
             Inhibit(false)
         });
+        window.set_resizable(false);
+        window.show();
 
         let drawing_area = DrawingArea::new();
         let pixel_size = self.screen_pixel_size;
@@ -90,6 +93,8 @@ impl GFX {
             w.queue_draw();
             Inhibit(false)
         });
+        window.present();
+        window.set_keep_above(true);
 
         GLOBAL.with(|global|{
             *global.borrow_mut() = Some(window);

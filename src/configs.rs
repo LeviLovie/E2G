@@ -9,13 +9,13 @@ use serde_yaml::{self};
 
 use crate::ERR;
 
-const BOOT_CONF_CONTENT: &str = "pixel_size: 6\nlog_easy: \"log.txt\"\nlog_hard: \"log.json\"\n";
+const BOOT_CONF_CONTENT: &str = "pixel_size: 6\nos: \"os/main.e2g\"\nstart_logo: 1\n";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BootConf {
     pub pixel_size: usize,
-    pub log_easy: String,
-    pub log_hard: String,
+    pub os: String,
+    pub start_logo: i8,
 }
 
 pub fn Delete() {
@@ -34,8 +34,8 @@ pub fn Get_boot_conf() -> BootConf {
     let scrape_config: BootConf = serde_yaml::from_reader(f).expect("Could not read values.");
     return BootConf {
         pixel_size: scrape_config.pixel_size,
-        log_easy: path.join(scrape_config.log_easy).to_str().unwrap().to_string(),
-        log_hard: scrape_config.log_hard,
+        os: scrape_config.os,
+        start_logo: scrape_config.start_logo,
     };
 }
 
@@ -43,7 +43,14 @@ pub fn Check(patch: bool) {
     let mut path = dirs::data_local_dir().unwrap();
     path.push("e2g");
 
-    let save_folder = path.to_str().unwrap(); 
+    check_directory_exists(path.to_str().unwrap(), patch);
+    check_directory_exists(path.join("os").to_str().unwrap(), patch);
+
+    check_file_exists(path.join("boot.yaml").to_str().unwrap(), BOOT_CONF_CONTENT, patch, false);
+}
+
+fn check_directory_exists(path: &str, patch: bool) {
+    let save_folder = path; 
     let save_folder_exists: bool = Path::new(save_folder).is_dir();
     if !save_folder_exists {
         if patch {
@@ -53,10 +60,6 @@ pub fn Check(patch: bool) {
             ERR::err_catch(ERR::Err::new(format!("Directory {:?} is not exists, continue checking is unreal (use \"patch\" flag to patch it)", save_folder).as_str(), ERR::LEVEL_ERR_FATAL));
         }
     }
-
-    check_file_exists(path.join("boot.yaml").to_str().unwrap(), BOOT_CONF_CONTENT, patch, false);
-    check_file_exists(path.join("log.txt").to_str().unwrap(), "", patch, true);
-    check_file_exists(path.join("log.json").to_str().unwrap(), "", patch, true);
 }
 
 fn check_file_exists(path: &str, content: &str, patch: bool, static_file: bool) {

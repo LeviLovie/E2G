@@ -1,9 +1,5 @@
-use std::fs::OpenOptions;
-use std::io::Write;
 use colored::Colorize;
 use chrono::prelude::*;
-
-use crate::configs;
 
 // MSG: String err message
 // ERR: Result<(), Error>
@@ -31,7 +27,6 @@ pub const LEVEL_ERR_FATAL: i8 = 5;
 
 pub fn err_catch(err: Err) {
     print_err(&err);
-    // log_err_easy(&err);
     if err.level == LEVEL_ERR_FATAL {std::process::exit(0);}
 }
 
@@ -47,10 +42,4 @@ pub fn print_err(err: &Err) {
     else                                           {err_type = "ERR_UNKNOWN".purple().to_string();}
 
     println!("{:<30}{:<30}{}", Local::now().format("%Y-%m-%dT%H:%M:%S").to_string().blue().to_string(), err_type, err.msg);
-}
-
-pub fn log_err_easy(err: &Err) {
-    let file = configs::Get_boot_conf().log_easy;
-    let mut fileRef = OpenOptions::new().append(true).open(file).expect("Unable to open file");   
-    fileRef.write_all(format!("{}\n", err.msg).as_bytes()).expect("write failed");
 }
