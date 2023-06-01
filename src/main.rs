@@ -4,18 +4,22 @@
 #![allow(non_snake_case)]
 
 mod engine;
+mod ERR;
 mod configs;
 
 use std::env;
 use configs::*;
 
 // use std::f64::consts::PI;
-
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
-        if args[1] == "migrate" {Migrate();return;}
+        if      args[1] == "delete" {Delete();return;}
+        else if args[1] == "check"  {Check(false);return;}
+        else if args[1] == "patch"  {Check(true);return;}
+        else if args[1] == "migrate"  {Delete();Check(true);return;}
     }
+    Check(false);
     let boot_conf = Get_boot_conf();
     let mut gfx = engine::GFX::GFX::new(boot_conf.pixel_size);
     

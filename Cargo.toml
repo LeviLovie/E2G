@@ -11,3 +11,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9.21"
 gtk = "0.17.1"
 glib = "0.17.1"
+"colored" = "2.0.0"
+"chrono" = "0.4.19"
