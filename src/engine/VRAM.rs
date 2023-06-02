@@ -80,26 +80,19 @@ impl VRAM {
         let image: image::DynamicImage = image::load_from_memory(image_data).unwrap();
         let img = image.to_rgb32f();
 
-        // for i in 0..160*40 {
-        //     println!("{}:{} - {:?}", i % 160, i / 160, img.get_pixel(i % 160, i / 160));
-        // }
-
         for i in 0..text_length {
             for j in 0..FONT_LETTERS.len() {
                 if text.chars().nth(i) == FONT_LETTERS.chars().nth(j) {
-                    // println!("letter_index: {}", j);
                     let mut letter_x = (j * LETTER_SIZE) % 160;
                     let mut letter_y = 0;
                     for i in 0..(j * LETTER_SIZE) / 160 {
                         letter_y += LETTER_SIZE;
                     }
-                    // println!("{}:{}", letter_x, letter_y);
 
                     let color2 = &Rgb([0, 0, 0]);
                     for k in 0..LETTER_SIZE {
                         for l in 0..LETTER_SIZE {
                             let img_pixel = img.get_pixel(letter_x as u32 + l as u32, letter_y as u32 + k as u32);
-                            // println!("{:?} {:?}", img_pixel, &Rgb([0.0, 0.0, 0.0]));
                             if img_pixel == &Rgb([0.0, 0.0, 0.0]) {
                                 self.VRAM_set_pixel(x + l + (i * LETTER_SIZE), y + k, color);
                             }
@@ -108,52 +101,6 @@ impl VRAM {
                 }
             }
         }
-
-        // for i in 0..text_length {
-        //     let mut letter_index = 0;
-        //     for j in 0..FONT_LETTERS.len() {
-        //         if text.chars().nth(i).unwrap() == FONT_LETTERS.chars().nth(j).unwrap() {
-        //             letter_index = j;
-        //             break;
-        //         }
-        //     }
-
-        //     println!("letter_index: {}", letter_index);
-
-        //     let mut letter_x = (letter_index % LETTERS_IN_LINE) * LETTER_SIZE;
-        //     let mut letter_y = (letter_index / LETTERS_IN_LINE) * LETTER_SIZE;
-
-        //     println!("letter_x: {}", letter_x);
-        //     println!("letter_y: {}", letter_y);
-
-        //     // let mut letter: [i32; LETTER_SIZE*LETTER_SIZE] = [0; LETTER_SIZE*LETTER_SIZE];
-        //     // for i in 0..LETTER_SIZE {
-        //     //     for j in 0..LETTER_SIZE {
-        //     //         let mut pixel = 0;
-        //     //         if LETTERS.chars().nth(letter_y * LETTER_SIZE + i + letter_x * LETTER_SIZE + j).unwrap() == '1' {
-        //     //             pixel = 1;
-        //     //         }
-        //     //         letter[(i * LETTER_SIZE) + j] = pixel;
-        //     //     }
-        //     // }
-
-        //     // for i in 0..LETTER_SIZE {
-        //     //     for j in 0..LETTER_SIZE {
-        //     //         print!("{}", letter[i * LETTER_SIZE + j]);
-        //     //     }
-        //     //     println!();
-        //     // }
-
-        //     // for i in 0..LETTER_SIZE {
-        //     //     for j in 0..LETTER_SIZE {
-        //     //         if i <= SIZE && j <= SIZE {
-        //     //             if letter[i * LETTER_SIZE + j] == 1 {
-        //     //                 self.VRAM_set_pixel(x + j, y + i, color);
-        //     //             }
-        //     //         }
-        //     //     }
-        //     // }
-        // }
     }
 
     // Set pixels circle in VRAM
