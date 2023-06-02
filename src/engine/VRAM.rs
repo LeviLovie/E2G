@@ -1,4 +1,6 @@
-pub const SIZE: usize = 128;
+use image::{Rgb};
+
+pub const SIZE: usize = 256;
 
 #[derive(Copy, Clone)]
 pub struct Color {
@@ -31,9 +33,9 @@ impl Color {
 // }
 
 const FONT_LETTERS: &str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz(|)~";
-const LETTERS_IN_LINE: usize = 20;
 const LETTER_SIZE: usize = 8;
-const LETTERS: [&str; FONT_LETTERS.len()] = 
+const IMAGE_WIDTH: i32 = 160;
+const IMAGE_HEIGTH: i32 = 40;
 
 #[derive(Copy, Clone)]
 pub struct VRAM {
@@ -55,6 +57,9 @@ impl VRAM {
 
     // Set pixel in VRAM
     pub fn VRAM_set_pixel(&mut self, x: usize, y: usize, color: Color) {
+        if x >= SIZE || y >= SIZE {
+            return;
+        }
         let num = y * SIZE + x;
         self.VRAM[num] = color;
     }
@@ -70,53 +75,85 @@ impl VRAM {
 
     pub fn VRAM_write_text(&mut self, x: usize, y: usize, color: Color, text: &str) {
         let text_length = text.len();
-        let image_data = include_bytes!("../../static/font.png");
+
+        let image_data = include_bytes!("../../static/font2.png");
+        let image: image::DynamicImage = image::load_from_memory(image_data).unwrap();
+        let img = image.to_rgb32f();
+
+        // for i in 0..160*40 {
+        //     println!("{}:{} - {:?}", i % 160, i / 160, img.get_pixel(i % 160, i / 160));
+        // }
 
         for i in 0..text_length {
-            let mut letter_index = 0;
             for j in 0..FONT_LETTERS.len() {
-                if text.chars().nth(i).unwrap() == FONT_LETTERS.chars().nth(j).unwrap() {
-                    letter_index = j;
-                    break;
-                }
-            }
-
-            println!("letter_index: {}", letter_index);
-
-            let mut letter_x = (letter_index % LETTERS_IN_LINE) * LETTER_SIZE;
-            let mut letter_y = (letter_index / LETTERS_IN_LINE) * LETTER_SIZE;
-
-            println!("letter_x: {}", letter_x);
-            println!("letter_y: {}", letter_y);
-
-            let mut letter: [i32; LETTER_SIZE*LETTER_SIZE] = [0; LETTER_SIZE*LETTER_SIZE];
-            for i in 0..LETTER_SIZE {
-                for j in 0..LETTER_SIZE {
-                    let mut pixel = 0;
-                    if LETTERS.chars().nth(letter_y * LETTER_SIZE + i + letter_x * LETTER_SIZE + j).unwrap() == '1' {
-                        pixel = 1;
+                if text.chars().nth(i) == FONT_LETTERS.chars().nth(j) {
+                    // println!("letter_index: {}", j);
+                    let mut letter_x = (j * LETTER_SIZE) % 160;
+                    let mut letter_y = 0;
+                    for i in 0..(j * LETTER_SIZE) / 160 {
+                        letter_y += LETTER_SIZE;
                     }
-                    letter[(i * LETTER_SIZE) + j] = pixel;
-                }
-            }
+                    // println!("{}:{}", letter_x, letter_y);
 
-            for i in 0..LETTER_SIZE {
-                for j in 0..LETTER_SIZE {
-                    print!("{}", letter[i * LETTER_SIZE + j]);
-                }
-                println!();
-            }
-
-            for i in 0..LETTER_SIZE {
-                for j in 0..LETTER_SIZE {
-                    if i <= SIZE && j <= SIZE {
-                        if letter[i * LETTER_SIZE + j] == 1 {
-                            self.VRAM_set_pixel(x + j, y + i, color);
+                    let color2 = &Rgb([0, 0, 0]);
+                    for k in 0..LETTER_SIZE {
+                        for l in 0..LETTER_SIZE {
+                            let img_pixel = img.get_pixel(letter_x as u32 + l as u32, letter_y as u32 + k as u32);
+                            // println!("{:?} {:?}", img_pixel, &Rgb([0.0, 0.0, 0.0]));
+                            if img_pixel == &Rgb([0.0, 0.0, 0.0]) {
+                                self.VRAM_set_pixel(x + l + (i * LETTER_SIZE), y + k, color);
+                            }
                         }
                     }
                 }
             }
         }
+
+        // for i in 0..text_length {
+        //     let mut letter_index = 0;
+        //     for j in 0..FONT_LETTERS.len() {
+        //         if text.chars().nth(i).unwrap() == FONT_LETTERS.chars().nth(j).unwrap() {
+        //             letter_index = j;
+        //             break;
+        //         }
+        //     }
+
+        //     println!("letter_index: {}", letter_index);
+
+        //     let mut letter_x = (letter_index % LETTERS_IN_LINE) * LETTER_SIZE;
+        //     let mut letter_y = (letter_index / LETTERS_IN_LINE) * LETTER_SIZE;
+
+        //     println!("letter_x: {}", letter_x);
+        //     println!("letter_y: {}", letter_y);
+
+        //     // let mut letter: [i32; LETTER_SIZE*LETTER_SIZE] = [0; LETTER_SIZE*LETTER_SIZE];
+        //     // for i in 0..LETTER_SIZE {
+        //     //     for j in 0..LETTER_SIZE {
+        //     //         let mut pixel = 0;
+        //     //         if LETTERS.chars().nth(letter_y * LETTER_SIZE + i + letter_x * LETTER_SIZE + j).unwrap() == '1' {
+        //     //             pixel = 1;
+        //     //         }
+        //     //         letter[(i * LETTER_SIZE) + j] = pixel;
+        //     //     }
+        //     // }
+
+        //     // for i in 0..LETTER_SIZE {
+        //     //     for j in 0..LETTER_SIZE {
+        //     //         print!("{}", letter[i * LETTER_SIZE + j]);
+        //     //     }
+        //     //     println!();
+        //     // }
+
+        //     // for i in 0..LETTER_SIZE {
+        //     //     for j in 0..LETTER_SIZE {
+        //     //         if i <= SIZE && j <= SIZE {
+        //     //             if letter[i * LETTER_SIZE + j] == 1 {
+        //     //                 self.VRAM_set_pixel(x + j, y + i, color);
+        //     //             }
+        //     //         }
+        //     //     }
+        //     // }
+        // }
     }
 
     // Set pixels circle in VRAM
