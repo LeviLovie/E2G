@@ -27,6 +27,7 @@ pub const COLORS: [engine::VRAM::Color; 16] = [
     COLOR_YELLOW,
     COLOR_MAGENTA,
     COLOR_CYAN,
+    COLOR_DARK_GRAY,
     COLOR_GRAY,
     COLOR_DARK_RED,
     COLOR_DARK_GREEN,
@@ -34,5 +35,4 @@ pub const COLORS: [engine::VRAM::Color; 16] = [
     COLOR_DARK_YELLOW,
     COLOR_DARK_MAGENTA,
     COLOR_DARK_CYAN,
-    COLOR_DARK_GRAY,
 ];

@@ -5,21 +5,20 @@ use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 use serde::{Deserialize, Serialize};
-use serde_yaml::{self};
+use serde_yaml::from_reader;
 
 use crate::ERR;
 
-const BOOT_CONF_CONTENT: &str = "pixel_size: 3\nos: \"os/main.e2g\"\nstart_logo: 1\n";
+const BOOT_CONF_CONTENT: &str = "pixel_size: 3\nboot: \"fs/os/main.e2g\"\n";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct BootConf {
     pub pixel_size: usize,
-    pub os: String,
-    pub start_logo: i8,
+    pub boot: String,
 }
 
 pub fn Delete() {
-    let mut path = dirs::data_local_dir().unwrap();
+    let mut path = dirs::document_dir().unwrap();
     path.push("e2g");
     let save_folder = path.to_str().unwrap();
     let _ = fs::remove_dir_all(save_folder);
@@ -27,26 +26,23 @@ pub fn Delete() {
 }
 
 pub fn Get_boot_conf() -> BootConf {
-    let mut path = dirs::data_local_dir().unwrap();
+    let mut path = dirs::document_dir().unwrap();
     path.push("e2g");
     let boot_file = path.join("boot.yaml");
     let f = std::fs::File::open(boot_file).expect("Could not open file.");
-    let scrape_config: BootConf = serde_yaml::from_reader(f).expect("Could not read values.");
-    return BootConf {
-        pixel_size: scrape_config.pixel_size,
-        os: scrape_config.os,
-        start_logo: scrape_config.start_logo,
-    };
+    return from_reader(f).unwrap();
 }
 
 pub fn Check(patch: bool) {
-    let mut path = dirs::data_local_dir().unwrap();
+    let mut path = dirs::document_dir().unwrap();
     path.push("e2g");
 
     check_directory_exists(path.to_str().unwrap(), patch);
-    check_directory_exists(path.join("os").to_str().unwrap(), patch);
+    check_directory_exists(path.join("fs").to_str().unwrap(), patch);
+    check_directory_exists(path.join("fs/os").to_str().unwrap(), patch);
 
     check_file_exists(path.join("boot.yaml").to_str().unwrap(), BOOT_CONF_CONTENT, patch, false);
+    check_file_exists(path.join("fs/os/main.e2g").to_str().unwrap(), "", patch, true);
 }
 
 fn check_directory_exists(path: &str, patch: bool) {

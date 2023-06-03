@@ -43,8 +43,13 @@ pub fn start_animation(vram_mut: &Arc<Mutex<engine::VRAM::VRAM>>) {
         } else {
             colors[k - colors.len()] = COLOR_BLACK;
         }
-        wait(75)
+        // if color_id == 0 {
+        //     color_id = colors.len() - 1;
+        // } else {
+        //     color_id -= 1;
+        // }
+        wait(50);
     }
     fill_bg(COLOR_BLACK, vram_mut);
-    wait(1000)
+    wait(100)
 }
